@@ -26,16 +26,6 @@
 3. 打包生产版本：`npm run build`
 4. 本地预览构建结果：`npm run preview`
 
-## GitHub Pages 发布
-
-这个项目已经准备好直接部署到 GitHub Pages。
-
-1. 把仓库推送到 GitHub，仓库名为 `FinanceTest`。
-2. 在 GitHub 仓库设置里打开 Pages。
-3. 选择 `GitHub Actions` 作为发布来源。
-4. 推送到 `main` 分支，或者在 Actions 里手动触发 `Deploy to GitHub Pages`。
-
-部署完成后，页面通常会出现在 `https://你的用户名.github.io/FinanceTest/`。
 
 ## 演示说明
 
@@ -44,14 +34,7 @@
 - 风险提示会根据模拟消费数据自动触发，支持一键关闭。
 - 学习中心可查看主题路径并模拟完成小测验，成长账户会同步积分与成就。
 
-## 目录结构
-
-- `src/components`：通用 UI 组件
-- `src/data`：模拟用户数据
-- `src/pages`：核心页面
-- `src/utils`：规则引擎与持久化工具
-- `src/store`：React Context 状态管理
 
 ## 后续扩展
 
-这个 demo 预留了后端接入空间，后续可以方便替换为 .NET 或其他服务端方案。
+demo 预留了后端接入空间，后续可以方便替换为 .NET 或其他服务端方案。
