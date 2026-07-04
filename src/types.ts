@@ -3,6 +3,7 @@ export type RiskLevel = '低' | '中' | '高';
 export type InvestmentStyle = '保守' | '稳健' | '平衡' | '积极';
 export type MessageRole = 'user' | 'assistant';
 export type AlertSeverity = 'info' | 'warning' | 'danger';
+export type ScenarioStatus = 'todo' | 'in_progress' | 'done';
 
 export interface Transaction {
   id: string;
@@ -98,6 +99,23 @@ export interface UserProfile {
   level: string;
 }
 
+export interface ScenarioTask {
+  id: string;
+  title: string;
+  scene: string;
+  goal: string;
+  rewardPoints: number;
+  status: ScenarioStatus;
+}
+
+export interface RiskOverview {
+  riskScore: number;
+  cashFlowPressure: number;
+  creditUtilization: number;
+  debtExpenseRatio: number;
+  signals: string[];
+}
+
 export interface DemoSnapshot {
   profile: UserProfile;
   transactions: Transaction[];
@@ -109,4 +127,5 @@ export interface DemoSnapshot {
   achievements: Achievement[];
   chatMessages: ChatMessage[];
   portfolio: PortfolioAllocation[];
+  scenarioTasks: ScenarioTask[];
 }

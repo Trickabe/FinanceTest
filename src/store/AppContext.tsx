@@ -9,6 +9,7 @@ import {
   DEFAULT_PORTFOLIO,
   DEFAULT_PRODUCTS,
   DEFAULT_PROFILE,
+  DEFAULT_SCENARIO_TASKS,
   DEFAULT_SAVINGS_GOALS,
   DEFAULT_TOPICS,
   DEFAULT_TRANSACTIONS,
@@ -22,6 +23,8 @@ import type {
   InvestmentProduct,
   LearningTopic,
   PortfolioAllocation,
+  RiskOverview,
+  ScenarioTask,
   SavingsGoal,
   Transaction,
   UserProfile,
@@ -29,6 +32,7 @@ import type {
 import {
   adjustBudgetsByIncome,
   buildAdvisorReply,
+  calculateRiskOverview,
   calculateSavingsProgress,
   createAssistantMessage,
   detectRiskAlerts,
@@ -49,6 +53,7 @@ interface DemoState {
   achievements: Achievement[];
   chatMessages: ChatMessage[];
   portfolio: PortfolioAllocation[];
+  scenarioTasks: ScenarioTask[];
   dismissedAlertIds: string[];
   demoMode: boolean;
 }
@@ -59,6 +64,7 @@ interface DemoContextValue extends DemoState {
   aiSuggestions: string[];
   riskAlerts: AlertItem[];
   recommendedProducts: InvestmentProduct[];
+  riskOverview: RiskOverview;
   monthlyTrend: Array<{ label: string; spend: number; save: number }>;
   enterDemo: () => void;
   dismissAlert: (alertId: string) => void;
@@ -67,6 +73,8 @@ interface DemoContextValue extends DemoState {
   updateSavingsGoal: (goalId: string, changes: Partial<SavingsGoal>) => void;
   updateTopicProgress: (topicId: string, progress: number) => void;
   updatePortfolioAllocation: (allocationId: string, ratio: number) => void;
+  startScenarioTask: (taskId: string) => void;
+  completeScenarioTask: (taskId: string) => void;
   simulateIncomeBoost: () => void;
   unlockAchievement: (achievementId: string) => void;
   addGrowthEvent: (title: string, description: string, points: number) => void;
@@ -78,7 +86,12 @@ const DemoContext = createContext<DemoContextValue | null>(null);
 function getInitialState(): DemoState {
   const stored = readStorage<DemoState | null>(STORAGE_KEY, null);
   if (stored) {
-    return stored;
+    return {
+      ...stored,
+      scenarioTasks: stored.scenarioTasks ?? DEFAULT_SCENARIO_TASKS,
+      dismissedAlertIds: stored.dismissedAlertIds ?? [],
+      demoMode: stored.demoMode ?? false,
+    };
   }
 
   const demoMode = readStorage<boolean>(DEMO_MODE_KEY, false);
@@ -93,6 +106,7 @@ function getInitialState(): DemoState {
     achievements: DEFAULT_ACHIEVEMENTS,
     chatMessages: DEFAULT_CHAT_MESSAGES,
     portfolio: DEFAULT_PORTFOLIO,
+    scenarioTasks: DEFAULT_SCENARIO_TASKS,
     dismissedAlertIds: [],
     demoMode,
   };
@@ -114,6 +128,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     [state],
   );
   const recommendedProducts = useMemo(() => recommendProducts(state.profile, state.investmentProducts), [state.profile, state.investmentProducts]);
+  const riskOverview = useMemo(() => calculateRiskOverview({ ...state }), [state]);
 
   const monthlyTrend = useMemo(
     () => [
@@ -157,6 +172,45 @@ export function DemoProvider({ children }: { children: ReactNode }) {
         allocation.id === allocationId ? { ...allocation, ratio: Math.max(0, Math.min(100, ratio)) } : allocation,
       ),
     }));
+  };
+
+  const startScenarioTask = (taskId: string) => {
+    setState((current) => ({
+      ...current,
+      scenarioTasks: current.scenarioTasks.map((task) =>
+        task.id === taskId && task.status === 'todo' ? { ...task, status: 'in_progress' } : task,
+      ),
+    }));
+  };
+
+  const completeScenarioTask = (taskId: string) => {
+    setState((current) => {
+      const target = current.scenarioTasks.find((task) => task.id === taskId);
+      if (!target || target.status === 'done') {
+        return current;
+      }
+
+      return {
+        ...current,
+        scenarioTasks: current.scenarioTasks.map((task) =>
+          task.id === taskId ? { ...task, status: 'done' } : task,
+        ),
+        growthEvents: [
+          {
+            id: `ev-${Date.now()}`,
+            title: `完成情景任务：${target.title}`,
+            description: target.goal,
+            createdAt: new Date().toLocaleDateString('zh-CN'),
+            points: target.rewardPoints,
+          },
+          ...current.growthEvents,
+        ],
+        profile: {
+          ...current.profile,
+          growthPoints: current.profile.growthPoints + target.rewardPoints,
+        },
+      };
+    });
   };
 
   const dismissAlert = (alertId: string) => {
@@ -271,6 +325,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       achievements: DEFAULT_ACHIEVEMENTS,
       chatMessages: DEFAULT_CHAT_MESSAGES,
       portfolio: DEFAULT_PORTFOLIO,
+      scenarioTasks: DEFAULT_SCENARIO_TASKS,
       dismissedAlertIds: [],
       demoMode: true,
     });
@@ -283,6 +338,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     aiSuggestions,
     riskAlerts,
     recommendedProducts,
+    riskOverview,
     monthlyTrend,
     enterDemo,
     dismissAlert,
@@ -291,6 +347,8 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     updateSavingsGoal,
     updateTopicProgress,
     updatePortfolioAllocation,
+    startScenarioTask,
+    completeScenarioTask,
     simulateIncomeBoost,
     unlockAchievement,
     addGrowthEvent,

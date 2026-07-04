@@ -1,4 +1,4 @@
-import { ArrowUpRight, BadgeCheck, BellRing, BrainCircuit, TrendingUp } from 'lucide-react';
+import { ArrowUpRight, BadgeCheck, BellRing, BrainCircuit, FlaskConical, GraduationCap, ShieldAlert, TrendingUp, WalletCards } from 'lucide-react';
 import {
   Bar,
   BarChart,
@@ -16,7 +16,7 @@ import {
 import { MetricCard } from '../components/MetricCard';
 import { ProgressBar } from '../components/ProgressBar';
 import { useDemo } from '../store/AppContext';
-import { calculateSavingsProgress, formatCurrency, getCategoryTotals } from '../utils/finance';
+import { formatCurrency, getCategoryTotals } from '../utils/finance';
 
 export function DashboardPage() {
   const {
@@ -28,13 +28,16 @@ export function DashboardPage() {
     learningTopics,
     aiSuggestions,
     riskAlerts,
+    riskOverview,
     savingsProgress,
+    scenarioTasks,
   } = useDemo();
 
   const categoryData = getCategoryTotals(transactions);
   const totalAssets = profile.currentAssets + monthlySummary.income - monthlySummary.expense;
   const spendingRate = Math.round((monthlySummary.expense / profile.monthlyIncome) * 100);
   const remainingIncome = monthlySummary.income - monthlySummary.expense;
+  const completedScenarios = scenarioTasks.filter((item) => item.status === 'done').length;
 
   return (
     <div className="space-y-6 animate-[fadeIn_0.45s_ease-out]">
@@ -111,6 +114,102 @@ export function DashboardPage() {
           hint="可用于储蓄和投资"
           accent="bg-emerald-50 text-emerald-700"
         />
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+        <div className="glass-card p-6">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h3 className="section-title">核心功能矩阵</h3>
+              <p className="section-subtitle mt-1">围绕资产、AI、风险、学习、实验和成长构建完整闭环。</p>
+            </div>
+            <WalletCards className="h-5 w-5 text-cyan-600" />
+          </div>
+
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {[
+              {
+                title: '资产管理',
+                desc: '资产总览、收支统计、预算管理',
+                value: '帮助用户了解财务状况',
+                icon: <WalletCards className="h-4 w-4 text-cyan-600" />,
+              },
+              {
+                title: 'AI 财富管家',
+                desc: '智能规划、储蓄建议、理财问答',
+                value: '提供个性化财务建议',
+                icon: <BrainCircuit className="h-4 w-4 text-emerald-600" />,
+              },
+              {
+                title: '风险预警',
+                desc: '消费异常、信用风险、现金流提醒',
+                value: '降低过度消费与借贷风险',
+                icon: <ShieldAlert className="h-4 w-4 text-rose-600" />,
+              },
+              {
+                title: '金融学习',
+                desc: '课程学习、测验与 AI 答疑',
+                value: '系统提升金融素养',
+                icon: <GraduationCap className="h-4 w-4 text-indigo-600" />,
+              },
+              {
+                title: '模拟实验室',
+                desc: '虚拟预算、模拟理财、情景任务',
+                value: '降低试错成本',
+                icon: <FlaskConical className="h-4 w-4 text-amber-600" />,
+              },
+              {
+                title: '成长账户',
+                desc: '等级、徽章、信用成长记录',
+                value: '增强长期使用动力',
+                icon: <BadgeCheck className="h-4 w-4 text-teal-600" />,
+              },
+            ].map((item) => (
+              <div key={item.title} className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+                <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                  {item.icon}
+                  {item.title}
+                </div>
+                <div className="mt-2 text-sm text-slate-600">{item.desc}</div>
+                <div className="mt-3 text-xs font-medium text-cyan-700">{item.value}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="glass-card p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="section-title">风险控制中枢</h3>
+              <p className="section-subtitle mt-1">现金流压力、信用占用与借贷比实时评估。</p>
+            </div>
+            <ShieldAlert className="h-5 w-5 text-rose-500" />
+          </div>
+
+          <div className="mt-5 rounded-2xl bg-slate-950 p-5 text-white">
+            <div className="text-sm text-slate-300">综合风险分</div>
+            <div className="mt-2 text-4xl font-semibold">{riskOverview.riskScore}</div>
+            <div className="mt-2 text-xs text-slate-400">分数越高表示风险越低</div>
+          </div>
+
+          <div className="mt-5 space-y-4">
+            <ProgressBar value={riskOverview.cashFlowPressure} label="现金流压力" tone="from-amber-500 to-rose-500" />
+            <ProgressBar value={riskOverview.creditUtilization} label="信用占用率" tone="from-cyan-500 to-blue-500" />
+            <ProgressBar value={riskOverview.debtExpenseRatio} label="借贷支出占比" tone="from-indigo-500 to-cyan-500" />
+          </div>
+
+          <div className="mt-5 space-y-2">
+            {riskOverview.signals.map((item) => (
+              <div key={item} className="rounded-xl border border-rose-100 bg-rose-50/70 px-3 py-2 text-sm text-rose-700">
+                {item}
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-5 rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-700">
+            已完成情景任务 {completedScenarios}/{scenarioTasks.length}，持续完成任务可以显著降低行为风险。
+          </div>
+        </div>
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">

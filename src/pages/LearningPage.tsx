@@ -1,11 +1,10 @@
-import { CircleCheckBig, PlayCircle, Trophy, BookOpen } from 'lucide-react';
+import { CircleCheckBig, PlayCircle, Trophy, BookOpen, Rocket } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 
 import { MetricCard } from '../components/MetricCard';
 import { ProgressBar } from '../components/ProgressBar';
 import { useDemo } from '../store/AppContext';
-import { formatCurrency } from '../utils/finance';
 
 const quizQuestions = [
   { id: 'q1', question: '复利最核心的作用是什么？', options: ['让时间放大资金增长', '让消费更自由', '让风险完全消失'], answer: 0 },
@@ -14,7 +13,17 @@ const quizQuestions = [
 ];
 
 export function LearningPage() {
-  const { learningTopics, portfolio, updateTopicProgress, addGrowthEvent, unlockAchievement } = useDemo();
+  const {
+    learningTopics,
+    portfolio,
+    scenarioTasks,
+    updateTopicProgress,
+    updatePortfolioAllocation,
+    startScenarioTask,
+    completeScenarioTask,
+    addGrowthEvent,
+    unlockAchievement,
+  } = useDemo();
   const [answers, setAnswers] = useState<Record<string, number | undefined>>({});
   const [quizResult, setQuizResult] = useState<number | null>(null);
 
@@ -129,13 +138,61 @@ export function LearningPage() {
                       min={0}
                       max={100}
                       value={item.ratio}
-                      onChange={() => undefined}
+                      onChange={(event) => updatePortfolioAllocation(item.id, Number(event.target.value))}
                       className="h-2 flex-1 appearance-none rounded-full bg-slate-200 accent-cyan-600"
                     />
                     <span className="text-xs text-slate-400">模拟</span>
                   </div>
                 </div>
               ))}
+            </div>
+
+            <div className="mt-6 rounded-[1.5rem] border border-slate-100 bg-white p-4 shadow-sm">
+              <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                <Rocket className="h-4 w-4 text-cyan-600" />
+                情景任务中心
+              </div>
+              <div className="mt-3 space-y-3">
+                {scenarioTasks.map((task) => (
+                  <div key={task.id} className="rounded-xl border border-slate-100 bg-slate-50/70 p-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="text-sm font-medium text-slate-900">{task.title}</div>
+                      <div
+                        className={[
+                          'rounded-full px-2.5 py-1 text-xs font-semibold',
+                          task.status === 'done'
+                            ? 'bg-emerald-100 text-emerald-700'
+                            : task.status === 'in_progress'
+                              ? 'bg-amber-100 text-amber-700'
+                              : 'bg-slate-200 text-slate-600',
+                        ].join(' ')}
+                      >
+                        {task.status === 'done' ? '已完成' : task.status === 'in_progress' ? '进行中' : '待开始'}
+                      </div>
+                    </div>
+                    <div className="mt-2 text-xs leading-6 text-slate-600">{task.scene}</div>
+                    <div className="mt-1 text-xs text-cyan-700">目标：{task.goal}</div>
+                    <div className="mt-3 flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => startScenarioTask(task.id)}
+                        disabled={task.status !== 'todo'}
+                        className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-cyan-200 hover:text-cyan-700 disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        开始任务
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => completeScenarioTask(task.id)}
+                        disabled={task.status === 'done'}
+                        className="rounded-full bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        完成并领取 +{task.rewardPoints}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 

@@ -7,9 +7,9 @@ export function LoginPage() {
 
   return (
     <div className="min-h-screen bg-radial-grid px-4 py-8 text-slate-900 sm:px-6 lg:px-8">
-      <div className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-7xl items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
+      <div className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-7xl items-center gap-10 lg:grid-cols-[1.08fr_0.92fr]">
         <section className="space-y-8">
-          <div className="inline-flex items-center gap-2 rounded-full border border-cyan-200 bg-white/80 px-4 py-2 text-sm font-medium text-cyan-800 shadow-sm backdrop-blur">
+          <div className="inline-flex items-center gap-2 rounded-full border border-cyan-200/60 bg-white/80 px-4 py-2 text-sm font-medium text-cyan-800 shadow-[0_10px_30px_rgba(14,165,233,0.12)] backdrop-blur">
             <Sparkles className="h-4 w-4" />
             青年群体智能金融体验 Demo
           </div>

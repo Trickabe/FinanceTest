@@ -7,6 +7,7 @@ import type {
   InvestmentProduct,
   LearningTopic,
   PortfolioAllocation,
+  ScenarioTask,
   SavingsGoal,
   Transaction,
   UserProfile,
@@ -190,6 +191,33 @@ export const DEFAULT_CHAT_MESSAGES: ChatMessage[] = [
   },
 ];
 
+export const DEFAULT_SCENARIO_TASKS: ScenarioTask[] = [
+  {
+    id: 'task-1',
+    title: '月初预算分配挑战',
+    scene: '你在月初拿到工资，需要完成生活支出、学习投入和储蓄的分配。',
+    goal: '将储蓄占比提升到收入的 20% 以上并控制借贷预算。',
+    rewardPoints: 28,
+    status: 'todo',
+  },
+  {
+    id: 'task-2',
+    title: '消费冲动拦截任务',
+    scene: '本周出现了 2 笔冲动购物，系统要求你优化消费结构。',
+    goal: '把娱乐与购物支出合计降低 15%。',
+    rewardPoints: 24,
+    status: 'in_progress',
+  },
+  {
+    id: 'task-3',
+    title: '现金流压力应对演练',
+    scene: '检测到借贷还款集中在同一周，现金流波动明显。',
+    goal: '优先偿还高息账单并提高应急金储备。',
+    rewardPoints: 32,
+    status: 'todo',
+  },
+];
+
 export const DEFAULT_SNAPSHOT: DemoSnapshot = {
   profile: DEFAULT_PROFILE,
   transactions: DEFAULT_TRANSACTIONS,
@@ -201,4 +229,5 @@ export const DEFAULT_SNAPSHOT: DemoSnapshot = {
   achievements: DEFAULT_ACHIEVEMENTS,
   chatMessages: DEFAULT_CHAT_MESSAGES,
   portfolio: DEFAULT_PORTFOLIO,
+  scenarioTasks: DEFAULT_SCENARIO_TASKS,
 };

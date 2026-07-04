@@ -6,6 +6,7 @@ import type {
   InvestmentProduct,
   LearningTopic,
   PortfolioAllocation,
+  RiskOverview,
   SavingsGoal,
   Transaction,
   UserProfile,
@@ -141,6 +142,49 @@ export function recommendProducts(profile: UserProfile, products: InvestmentProd
     const rightIndex = order.indexOf(right.riskLevel);
     return leftIndex - rightIndex;
   });
+}
+
+export function calculateRiskOverview(snapshot: DemoSnapshot): RiskOverview {
+  const summary = sumByType(snapshot.transactions);
+  const expenseRatio = summary.income === 0 ? 0 : (summary.expense / summary.income) * 100;
+  const debtSpent = snapshot.transactions
+    .filter((item) => item.type === 'expense' && item.category === '借贷')
+    .reduce((sum, item) => sum + item.amount, 0);
+  const debtExpenseRatio = summary.expense === 0 ? 0 : Math.round((debtSpent / summary.expense) * 100);
+  const creditUtilization = Math.max(15, Math.min(95, Math.round((debtSpent / Math.max(snapshot.profile.monthlyIncome, 1)) * 100 + 18)));
+  const savingsProgress = calculateSavingsProgress(snapshot.savingsGoals);
+
+  const cashFlowPressure = Math.max(
+    5,
+    Math.min(
+      100,
+      Math.round(expenseRatio * 0.55 + debtExpenseRatio * 0.25 + Math.max(0, 55 - savingsProgress) * 0.4),
+    ),
+  );
+
+  const riskScore = Math.max(0, Math.min(100, Math.round(100 - (cashFlowPressure * 0.6 + creditUtilization * 0.4))));
+
+  const signals: string[] = [];
+  if (expenseRatio > 78) {
+    signals.push('本月支出占收入比例偏高，建议把可选消费控制在预算线以内。');
+  }
+  if (debtExpenseRatio > 24) {
+    signals.push('借贷支出占比偏高，建议优先偿还高息账单并避免新增分期。');
+  }
+  if (savingsProgress < 45) {
+    signals.push('储蓄进度偏慢，可考虑工资到账后自动转入目标账户。');
+  }
+  if (signals.length === 0) {
+    signals.push('整体风险可控，建议保持预算纪律并持续学习金融知识。');
+  }
+
+  return {
+    riskScore,
+    cashFlowPressure,
+    creditUtilization,
+    debtExpenseRatio,
+    signals,
+  };
 }
 
 export function buildAdvisorReply(question: string, snapshot: DemoSnapshot) {
