@@ -1,7 +1,8 @@
 {
-  "name": "qingcai-zhiguan-demo",
+  "name": "finance-test-demo",
   "private": true,
   "version": "0.1.0",
+  "homepage": "https://trickabe.github.io/FinanceTest",
   "type": "module",
   "scripts": {
     "dev": "vite",

@@ -236,7 +236,7 @@ export function DashboardPage() {
                       />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                  <Tooltip formatter={(value) => formatCurrency(Number(value ?? 0))} />
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>
@@ -248,7 +248,7 @@ export function DashboardPage() {
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis dataKey="label" tickLine={false} axisLine={false} />
                   <YAxis tickLine={false} axisLine={false} />
-                  <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                  <Tooltip formatter={(value) => formatCurrency(Number(value ?? 0))} />
                   <Legend />
                   <Bar dataKey="spend" fill="#0ea5e9" radius={[10, 10, 0, 0]} name="消费" />
                   <Bar dataKey="save" fill="#22c55e" radius={[10, 10, 0, 0]} name="储蓄" />
